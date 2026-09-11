@@ -80,7 +80,23 @@ insert into review (user_id, film_id, isi_review) values
 insert into watchlist (user_id, film_id) values 
 ('')
 
-create
+create procedure TambahFilm(
+	in p_admin_id int,
+	in p_judul varchar(100),
+	in p_genre varchar(100),
+	in p_sutradara varchar(100),
+	in p_pemeran varchar(100),
+	in p_tahun_rilis int,
+	in p_sinopsis varchar(100)
+	
+)
+begin
+	insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis)
+	values (p_admin_id, p_judul, p_genre, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
+end
+call TambahFilm(1, 'The Batman', 'Action, Crime', 'Matt Reeves', 'Robert Pattinson, Zoë Kravitz', 2022, 'Batman menyelidiki korupsi di Gotham.');
+
+create function
 
 
 
