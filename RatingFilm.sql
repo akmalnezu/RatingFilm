@@ -69,16 +69,25 @@ insert into admin (username, password) values
 ('admin2', 'admin2134');
 
 insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis) values
-('')
+(1, 'Spider-Man: No Way Home', 'Action, Adventure, Sci-Fi', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.'),
+(1, 'Inception', 'Action, Sci-Fi, Thriller', 'Christopher Nolan', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 2010, 'Seorang pencuri profesional mencuri rahasia melalui alam bawah sadar.'),
+(2, 'Laskar Pelangi', 'Drama, Family', 'Riri Riza', 'Cut Mini, Ikranagara, Slamet Rahardjo', 2008, 'Kisah inspiratif anak-anak di Belitung yang berjuang mendapatkan pendidikan.');
 
 insert into rating (user_id, film_id, nilai) values
-('')
+(1, 1, 9),
+(1, 2, 8),
+(2, 3, 10),
+(3, 1, 9);
 
 insert into review (user_id, film_id, isi_review) values 
-('')
+(1, 1, 'Seru banget, efek visualnya juara dan ceritanya mindblowing!'),
+(2, 3, 'Film Indonesia terbaik yang sangat menyentuh hati dan inspiratif.'),
+(3, 1, 'Agak pusing di awal, tapi endingnya keren.');
 
 insert into watchlist (user_id, film_id) values 
-('')
+(1, 3), 
+(2, 1), 
+(3, 2);
 
 create procedure TambahFilm(
 	in p_admin_id int,
@@ -88,7 +97,6 @@ create procedure TambahFilm(
 	in p_pemeran varchar(100),
 	in p_tahun_rilis int,
 	in p_sinopsis varchar(100)
-	
 )
 begin
 	insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis)
@@ -96,8 +104,14 @@ begin
 end
 call TambahFilm(1, 'The Batman', 'Action, Crime', 'Matt Reeves', 'Robert Pattinson, Zoë Kravitz', 2022, 'Batman menyelidiki korupsi di Gotham.');
 
-create function
-
+create function TotalWatchlist(id_user int) returns int reads sql data
+begin
+	declare jumlah int;
+	select count(*) into jumlah from watchlist
+	where user_id = id_user;
+	return jumlah;
+end
+select username, TotalWatchlist(id) as TotalFilmDiWatchlist from user;
 
 
 
