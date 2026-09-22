@@ -23,6 +23,7 @@ create table film (
 	pemeran varchar (100),
 	tahun_rilis int,
 	sinopsis varchar (100),
+	rating decimal(3,2) default 0.00,
 	create_at datetime default CURRENT_TIMESTAMP(),
 	update_at datetime default CURRENT_TIMESTAMP() on update CURRENT_TIMESTAMP(),
 	foreign key (admin_id) references admin(id)
@@ -74,6 +75,7 @@ insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinop
 (2, 'Laskar Pelangi', 'Drama, Family', 'Riri Riza', 'Cut Mini, Ikranagara, Slamet Rahardjo', 2008, 'Kisah inspiratif anak-anak di Belitung yang berjuang mendapatkan pendidikan.');
 
 insert into rating (user_id, film_id, nilai) values
+(2, 1, 7),
 (1, 1, 9),
 (1, 2, 8),
 (2, 3, 10),
@@ -113,18 +115,23 @@ begin
 end
 select username, TotalWatchlist(id) as TotalFilmDiWatchlist from user;
 
+create function AverageRating(id_film int) returns decimal(3,2) reads sql data
+begin
+	declare avg_rating decimal(3,2);
+	select avg(nilai) into avg_rating from rating
+	where film_id = id_film;
+	return avg_rating;
+end
+
+#TRIGGER
+
+create trigger UpdateFilmAfterRating
+after insert on rating
+for each row
+begin
+	update film set rating = AverageRating(new.film_id)
+	where id = new.film_id;
+end;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#VIEW
