@@ -115,10 +115,10 @@ begin
 end
 select username, TotalWatchlist(id) as TotalFilmDiWatchlist from user;
 
-create function AverageRating(id_film int) returns decimal(3,2) reads sql data
+create function AverageRating(id_film int) returns decimal(3,1) reads sql data
 begin
-	declare avg_rating decimal(3,2);
-	select avg(nilai) into avg_rating from rating
+	declare avg_rating decimal(3,1);
+	select ifnull(avg(nilai), 0.0) into avg_rating from rating
 	where film_id = id_film;
 	return avg_rating;
 end
@@ -135,3 +135,10 @@ end;
 
 
 #VIEW
+
+create view FilmWithAverageRating as
+select f.id, f.judul, f.genre, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, AverageRating(f.id) as average_rating
+from film f;
+
+select * from FilmWithAverageRating;
+
