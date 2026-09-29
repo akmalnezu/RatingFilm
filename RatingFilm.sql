@@ -91,6 +91,9 @@ insert into watchlist (user_id, film_id) values
 (2, 1), 
 (3, 2);
 
+
+#PROCEDURE
+
 create procedure TambahFilm(
 	in p_admin_id int,
 	in p_judul varchar(100),
@@ -105,6 +108,9 @@ begin
 	values (p_admin_id, p_judul, p_genre, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
 end
 call TambahFilm(1, 'The Batman', 'Action, Crime', 'Matt Reeves', 'Robert Pattinson, Zoë Kravitz', 2022, 'Batman menyelidiki korupsi di Gotham.');
+
+
+#FUNCTION
 
 create function TotalWatchlist(id_user int) returns int reads sql data
 begin
@@ -133,6 +139,13 @@ begin
 	where id = new.film_id;
 end;
 
+create trigger DeleteWatchlistAfterRating
+after insert on rating
+for each row
+begin
+	delete from watchlist 
+	where user_id = new.user_id and film_id = new.film_id;
+end;
 
 #VIEW
 
