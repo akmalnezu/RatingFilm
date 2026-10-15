@@ -14,6 +14,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal; -- Memunculkan pesan error ke layar
     end;
 
     start transaction;
@@ -30,24 +31,40 @@ begin
     end if;
 end$$
 
+call RegistrasiUser('Wisnu', 'wisnu@example.com', 'password123');
+
 #2: Login User
 
 drop procedure if exists LoginUser$$
 
 create procedure LoginUser(
-    in p_email varchar(100),
+    in p_akun varchar(100),
     in p_password varchar(100)
 )
 begin
+    declare cek_user int;
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
-    select * from user where email = p_email and password = p_password;
-    commit;
+    
+    select count(*) into cek_user from user 
+    where (email = p_akun or username = p_akun) and password = p_password;
+
+    if cek_user = 0 then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Email/Username atau Password salah!';
+    else
+        select * from user 
+        where (email = p_akun or username = p_akun) and password = p_password;
+        commit;
+    end if;
 end$$
+
+call LoginUser('akmal@example.com', 'password123');
 
 #3: Login Admin
 
@@ -58,17 +75,30 @@ create procedure LoginAdmin(
     in p_password varchar(100)
 )
 begin
+    declare cek_admin int;
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
-    select * from admin where username = p_username and password = p_password;
-    commit;
+    
+    select count(*) into cek_admin from admin 
+    where username = p_username and password = p_password;
+
+    if cek_admin = 0 then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Username atau Password admin salah!';
+    else
+        select * from admin where username = p_username and password = p_password;
+        commit;
+    end if;
 end$$
 
-#4: Tambah Film (Admin)
+call LoginAdmin('admin1', 'admin123');
+
+#4: Tambah Film (Admin) - Dengan Pengecekan Duplikat
 
 drop procedure if exists TambahFilm$$
 
@@ -82,18 +112,29 @@ create procedure TambahFilm(
     in p_sinopsis varchar(100)
 )
 begin
+    declare cek_duplikat int;
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal; 
     end;
 
     start transaction;
-    insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis)
-    values (p_admin_id, p_judul, p_genre, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
-    commit;
+    select count(*) into cek_duplikat from film where judul = p_judul;
+
+    if cek_duplikat > 0 then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Film dengan judul ini sudah ada di database!';
+    else
+        insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis)
+        values (p_admin_id, p_judul, p_genre, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
+        commit;
+    end if;
 end$$
 
-#5: Beri Ulasan (Rating & Review)
+call TambahFilm(1, 'Inception', 'Sci-Fi, Thriller', 'Christopher Nolan', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 2010, 'A thief who steals corporate secrets through dream-sharing technology.');
+
+#5: Beri Ulasan (Rating & Review) - Update otomatis jika sudah rating
 
 drop procedure if exists BeriUlasan$$
 
@@ -108,6 +149,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
@@ -122,9 +164,11 @@ begin
     else
         insert into rating (user_id, film_id, nilai) values (p_user_id, p_film_id, p_nilai);
         insert into review (user_id, film_id, isi_review) values (p_user_id, p_film_id, p_isi_review);
-        commit;
     end if;
+    commit;
 end$$
+
+call BeriUlasan(1, 1, 9, 'Film ini sangat menghibur dan penuh aksi!');
 
 #6: Hapus Ulasan (User)
 
@@ -138,6 +182,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
@@ -146,7 +191,9 @@ begin
     commit;
 end$$
 
-#7: Tambah Watchlist
+call HapusUlasan(1, 1);
+
+#7: Tambah Watchlist - Pengecekan Film Kembar
 
 drop procedure if exists TambahWatchlist$$
 
@@ -159,6 +206,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
@@ -174,6 +222,8 @@ begin
     end if;
 end$$
 
+call TambahWatchlist(1, 1);
+
 #8: Hapus Watchlist
 
 drop procedure if exists HapusWatchlist$$
@@ -183,15 +233,28 @@ create procedure HapusWatchlist(
     in p_film_id int
 )
 begin
+    declare cek_watchlist int;
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
-    delete from watchlist where user_id = p_user_id and film_id = p_film_id;
-    commit;
+    
+    select count(*) into cek_watchlist from watchlist 
+    where user_id = p_user_id and film_id = p_film_id;
+
+    if cek_watchlist = 0 then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Film tersebut tidak ada di watchlist Anda!';
+    else
+        delete from watchlist where user_id = p_user_id and film_id = p_film_id;
+        commit;
+    end if;
 end$$
+
+call HapusWatchlist(1, 1);
 
 #9: Mengubah Film (Admin)
 
@@ -210,6 +273,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
@@ -224,7 +288,9 @@ begin
     commit;
 end$$
 
-#10: Menghapus Film (Admin) - Menghapus data child terlebih dahulu
+call UbahFilm(4, 'Spider-Man: No Way Home', 'Action, Adventure, Sci-Fi', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.');
+
+#10: Menghapus Film (Admin)
 
 drop procedure if exists HapusFilm$$
 
@@ -235,6 +301,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
+        resignal;
     end;
 
     start transaction;
@@ -246,6 +313,6 @@ begin
     commit;
 end$$
 
-DELIMITER ;
+call HapusFilm(1);
 
-call TambahFilm(1, 'The Batman', 'Action, Crime', 'Matt Reeves', 'Robert Pattinson, Zoë Kravitz', 2022, 'Batman menyelidiki korupsi di Gotham.');
+DELIMITER ;
