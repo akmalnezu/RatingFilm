@@ -14,10 +14,18 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
-        resignal; -- memunculkan pesan error
+        resignal;
     end;
 
     start transaction;
+    
+    -- VALIDASI 1: Cek format email menggunakan REGEXP
+    if p_email not regexp '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Format email tidak valid!';
+    end if;
+
+    -- VALIDASI 2: Cek apakah email/username sudah dipakai
     select count(*) into cek_duplikat from user 
     where email = p_email or username = p_username;
 
@@ -38,7 +46,7 @@ call RegistrasiUser('Wisnu', 'wisnu@example.com', 'password123');
 drop procedure if exists LoginUser$$
 
 create procedure LoginUser(
-    in p_akun varchar(100),
+    in p_akun varchar(100), 
     in p_password varchar(100)
 )
 begin
@@ -50,6 +58,12 @@ begin
     end;
 
     start transaction;
+    
+    -- VALIDASI: Jika input mengandung '@', pastikan format emailnya benar
+    if p_akun like '%@%' and p_akun not regexp '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Format penulisan email tidak valid!';
+    end if;
     
     select count(*) into cek_user from user 
     where (email = p_akun or username = p_akun) and password = p_password;
