@@ -1,8 +1,8 @@
 #1
-drop view if exists FilmWithAverageRating
+drop view if exists FilmWithAverageRating;
 
 create view FilmWithAverageRating as
-select f.id, f.judul, f.genre, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, AverageRating(f.id) as average_rating
+select f.id, f.judul, f.genre, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, f.rating as average_rating
 from film f;
 select * from FilmWithAverageRating;
 select * from FilmWithAverageRating WHERE judul = 'Spider-Man: No Way Home';
