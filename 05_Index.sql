@@ -2,7 +2,7 @@ create index idx_user_username on user(username);
 create index idx_user_email on user(email);
 
 create index idx_film_judul on film(judul);
-create index idx_film_genre on film(genre);
+create index idx_genre_nama on genre(nama_genre);
 create index idx_film_sutradara on film(sutradara);
 create index idx_film_tahun_rilis on film(tahun_rilis);
 create index idx_film_rating on film(rating);

@@ -2,7 +2,7 @@
 drop view if exists FilmWithAverageRating;
 
 create view FilmWithAverageRating as
-select f.id, f.judul, f.genre, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, f.rating as average_rating
+select f.id, f.judul, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, f.rating as average_rating
 from film f;
 select * from FilmWithAverageRating;
 select * from FilmWithAverageRating WHERE judul = 'Spider-Man: No Way Home';
@@ -52,7 +52,6 @@ select
     u.username as nama_user,
     f.id as film_id,
     f.judul as judul_film,
-    f.genre,
     w.create_at as tanggal_ditambahkan
 from watchlist w
 join user u on w.user_id = u.id
@@ -68,7 +67,6 @@ create view ViewFilmPopuler as
 select 
     f.id as film_id,
     f.judul as judul_film,
-    f.genre,
     f.tahun_rilis,
     AverageRating(f.id) as rating_rata_rata,
     (select count(*) from rating where film_id = f.id) as jumlah_pemberi_rating,
@@ -76,3 +74,25 @@ select
 from film f;
 
 select * from ViewFilmPopuler order by rating_rata_rata desc, jumlah_pemberi_rating desc limit 10;
+
+#6
+
+drop view if exists FilmLengkapDenganGenre;
+
+create view FilmLengkapDenganGenre as
+select
+    f.id as film_id,
+    f.judul,
+    group_concat(g.nama_genre SEPARATOR ', ') as genre,
+    f.sutradara,
+    f.pemeran,
+    f.tahun_rilis,
+    f.sinopsis,
+    f.rating as average_rating
+from film f
+left join film_genre fg on f.id = fg.film_id
+left join genre g on fg.genre_id = g.id
+group by f.id, f.judul, f.sutradara, f.pemeran, f.tahun_rilis, f.sinopsis, f.rating;
+
+SELECT * FROM FilmLengkapDenganGenre;
+SELECT * FROM FilmLengkapDenganGenre WHERE judul = 'Spider-Man: No Way Home';

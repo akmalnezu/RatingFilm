@@ -119,7 +119,6 @@ drop procedure if exists TambahFilm$$
 create procedure TambahFilm(
     in p_admin_id int,
     in p_judul varchar(100),
-    in p_genre varchar(100),
     in p_sutradara varchar(100),
     in p_pemeran varchar(100),
     in p_tahun_rilis int,
@@ -140,13 +139,13 @@ begin
         rollback;
         signal sqlstate '45000' set message_text = 'Gagal: Film dengan judul ini sudah ada di database!';
     else
-        insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis)
-        values (p_admin_id, p_judul, p_genre, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
+        insert into film (admin_id, judul, sutradara, pemeran, tahun_rilis, sinopsis)
+        values (p_admin_id, p_judul, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis);
         commit;
     end if;
 end$$
 
-call TambahFilm(1, 'Inception', 'Sci-Fi, Thriller', 'Christopher Nolan', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 2010, 'A thief who steals corporate secrets through dream-sharing technology.');
+call TambahFilm(1, 'Inception', 'Christopher Nolan', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 2010, 'A thief who steals corporate secrets through dream-sharing technology.');
 
 #5: Beri Ulasan (Rating & Review) - Update otomatis jika sudah rating
 
@@ -277,7 +276,6 @@ drop procedure if exists UbahFilm$$
 create procedure UbahFilm(
     in p_film_id int,
     in p_judul varchar(100),
-    in p_genre varchar(100),
     in p_sutradara varchar(100),
     in p_pemeran varchar(100),
     in p_tahun_rilis int,
@@ -292,8 +290,7 @@ begin
 
     start transaction;
     update film 
-    set judul = p_judul, 
-        genre = p_genre, 
+    set judul = p_judul,  
         sutradara = p_sutradara, 
         pemeran = p_pemeran, 
         tahun_rilis = p_tahun_rilis, 
@@ -302,7 +299,7 @@ begin
     commit;
 end$$
 
-call UbahFilm(4, 'Spider-Man: No Way Home', 'Action, Adventure, Sci-Fi', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.');
+call UbahFilm(4, 'Spider-Man: No Way Home', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.');
 
 #10: Menghapus Film
 
@@ -331,7 +328,7 @@ call HapusFilm(1);
 
 #11: Menghapus User
 
-drop procedure if exists HapusUser$$
+drop procedure if exists HapusAkun$$
 
 create procedure HapusAkun(
     in p_user_id int
@@ -358,5 +355,73 @@ begin
         commit;
     end if;
 end$$
+
+#12: Filter Film Berdasarkan Genre
+
+drop procedure if exists FilterFilmByGenre$$
+
+create procedure FilterFilmByGenre(
+    in p_genre varchar(100)
+)
+begin
+    declare exit handler for sqlexception
+    begin
+        rollback;
+        resignal;
+    end;
+
+    start transaction;
+    -- Mengambil data dari View yang sudah ada genrenya
+    select * from FilmLengkapDenganGenre
+    where genre like concat('%', p_genre, '%')
+    order by average_rating desc;
+    commit;
+end$$
+
+call FilterFilmByGenre('Action');
+
+#13 Tambah Genre ke Film (Admin)
+
+drop procedure if exists TambahGenreKeFilm$$
+
+create procedure TambahGenreKeFilm(
+    in p_film_id int,
+    in p_nama_genre varchar(50)
+)
+begin
+    declare v_genre_id int;
+    declare cek_relasi int;
+    
+    declare exit handler for sqlexception
+    begin
+        rollback;
+        resignal;
+    end;
+
+    start transaction;
+
+    -- Langkah 1: Cek apakah nama genre tersebut sudah ada di tabel master 'genre'
+    select id into v_genre_id from genre where nama_genre = p_nama_genre;
+
+    -- Langkah 2: Jika genrenya belum ada, buat genre baru!
+    if v_genre_id is null then
+        insert into genre (nama_genre) values (p_nama_genre);
+        set v_genre_id = LAST_INSERT_ID(); -- Mengambil ID genre yang baru saja dibuat
+    end if;
+
+    -- Langkah 3: Cek apakah film tersebut sudah terhubung dengan genre ini 
+    -- (Untuk mencegah error duplikat Primary Key di tabel film_genre)
+    select count(*) into cek_relasi from film_genre 
+    where film_id = p_film_id and genre_id = v_genre_id;
+
+    -- Langkah 4: Jika belum terhubung, masukkan ke tabel penghubung
+    if cek_relasi = 0 then
+        insert into film_genre (film_id, genre_id) values (p_film_id, v_genre_id);
+    end if;
+
+    commit;
+end$$
+
+call TambahGenreKeFilm(1, 'Thriller');
 
 DELIMITER ;

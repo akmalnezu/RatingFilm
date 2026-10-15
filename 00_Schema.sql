@@ -14,11 +14,12 @@ create table admin (
 	create_at datetime default CURRENT_TIMESTAMP()
 );
 
+drop table if exists film;
+
 create table film (
 	id int primary key auto_increment,
 	admin_id int,
 	judul varchar (100),
-	genre varchar (100),
 	sutradara varchar (100),
 	pemeran varchar (100),
 	tahun_rilis int,
@@ -27,6 +28,20 @@ create table film (
 	create_at datetime default CURRENT_TIMESTAMP(),
 	update_at datetime default CURRENT_TIMESTAMP() on update CURRENT_TIMESTAMP(),
 	foreign key (admin_id) references admin(id)
+);
+
+
+create table genre (
+	id int primary key auto_increment,
+	nama_genre varchar (50) unique
+);
+
+create table film_genre (
+    film_id int,
+    genre_id int,
+    primary key (film_id, genre_id),
+    foreign key (film_id) references film(id) on delete cascade,
+    foreign key (genre_id) references genre(id) on delete cascade
 );
 
 create table rating (
@@ -69,10 +84,23 @@ insert into admin (username, password) values
 ('admin1', 'admin1123'),
 ('admin2', 'admin2134');
 
-insert into film (admin_id, judul, genre, sutradara, pemeran, tahun_rilis, sinopsis) values
-(1, 'Spider-Man: No Way Home', 'Action, Adventure, Sci-Fi', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.'),
-(1, 'Inception', 'Action, Sci-Fi, Thriller', 'Christopher Nolan', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 2010, 'Seorang pencuri profesional mencuri rahasia melalui alam bawah sadar.'),
-(2, 'Laskar Pelangi', 'Drama, Family', 'Riri Riza', 'Cut Mini, Ikranagara, Slamet Rahardjo', 2008, 'Kisah inspiratif anak-anak di Belitung yang berjuang mendapatkan pendidikan.');
+-- 1. Masukkan film (TANPA genre)
+insert into film (admin_id, judul, sutradara, pemeran, tahun_rilis, sinopsis) values
+(1, 'Spider-Man: No Way Home', 'Jon Watts', 'Tom Holland', 2021, 'Identitas Spider-Man terungkap.'); -- Film ID 1
+
+-- 2. Masukkan master genre ke database
+insert into genre (nama_genre) values 
+('Action'),    -- Genre ID 1
+('Adventure'), -- Genre ID 2
+('Sci-Fi'),    -- Genre ID 3
+('Drama');     -- Genre ID 4
+
+-- 3. Hubungkan Film dengan Genrenya di tabel film_genre
+-- Contoh: Spider-Man (ID 1) genrenya Action (1), Adventure (2), Sci-Fi (3)
+insert into film_genre (film_id, genre_id) values 
+(1, 1), 
+(1, 2), 
+(1, 3);
 
 insert into rating (user_id, film_id, nilai) values
 (2, 1, 7),
