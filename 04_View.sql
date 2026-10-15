@@ -1,4 +1,5 @@
-#1
+#1. View untuk menampilkan film beserta rating rata-rata
+
 drop view if exists FilmWithAverageRating;
 
 create view FilmWithAverageRating as
@@ -7,7 +8,8 @@ from film f;
 select * from FilmWithAverageRating;
 select * from FilmWithAverageRating WHERE judul = 'Spider-Man: No Way Home';
 
-#2
+#2. View untuk menampilkan detail review beserta rating yang diberikan oleh user
+
 drop view if exists ViewDetailReview;
 
 create view ViewDetailReview as
@@ -27,7 +29,8 @@ left join rating r on rv.user_id = r.user_id and rv.film_id = r.film_id;
 select * from ViewDetailReview;
 select * from ViewDetailReview WHERE judul_film = 'Spider-Man: No Way Home';
 
-#3
+#3. View untuk menampilkan aktivitas user, termasuk jumlah rating yang diberikan, jumlah review yang ditulis, dan jumlah film di watchlist
+
 drop view if exists AktivitasUser;
 
 create view AktivitasUser as
@@ -43,7 +46,8 @@ from user u;
 select * from AktivitasUser;
 select * from AktivitasUser where nama_user = 'Ariel';
 
-#4
+#4. View untuk menampilkan daftar watchlist user, termasuk judul film dan tanggal ditambahkan ke watchlist
+
 drop view if exists DaftarWatchlistUser;
 
 create view DaftarWatchlistUser as
@@ -60,7 +64,8 @@ join film f on w.film_id = f.id;
 select * from DaftarWatchlistUser;
 select * from DaftarWatchlistUser where nama_user = 'Ariel';
 
-#5
+#5. View untuk menampilkan film populer berdasarkan rating rata-rata dan jumlah pemberi rating
+
 drop view if exists ViewFilmPopuler;
 
 create view ViewFilmPopuler as
@@ -75,7 +80,7 @@ from film f;
 
 select * from ViewFilmPopuler order by rating_rata_rata desc, jumlah_pemberi_rating desc limit 10;
 
-#6
+#6. View untuk menampilkan film lengkap beserta genre yang terkait
 
 drop view if exists FilmLengkapDenganGenre;
 
