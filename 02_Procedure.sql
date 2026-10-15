@@ -14,7 +14,7 @@ begin
     declare exit handler for sqlexception
     begin
         rollback;
-        resignal; -- Memunculkan pesan error ke layar
+        resignal; -- memunculkan pesan error
     end;
 
     start transaction;
@@ -290,7 +290,7 @@ end$$
 
 call UbahFilm(4, 'Spider-Man: No Way Home', 'Action, Adventure, Sci-Fi', 'Jon Watts', 'Tom Holland, Zendaya, Benedict Cumberbatch', 2021, 'Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange.');
 
-#10: Menghapus Film (Admin)
+#10: Menghapus Film
 
 drop procedure if exists HapusFilm$$
 
@@ -314,5 +314,35 @@ begin
 end$$
 
 call HapusFilm(1);
+
+#11: Menghapus User
+
+drop procedure if exists HapusUser$$
+
+create procedure HapusAkun(
+    in p_user_id int
+)
+begin
+    declare cek_user int;
+    declare exit handler for sqlexception
+    begin
+        rollback;
+        resignal;
+    end;
+
+    start transaction;
+    
+    -- Mengecek apakah user dengan ID tersebut terdaftar di database
+    select count(*) into cek_user from user where id = p_user_id;
+
+    if cek_user = 0 then
+        rollback;
+        signal sqlstate '45000' set message_text = 'Gagal: Akun user tidak ditemukan!';
+    else
+        delete from user where id = p_user_id;
+        
+        commit;
+    end if;
+end$$
 
 DELIMITER ;
