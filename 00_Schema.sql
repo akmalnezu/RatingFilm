@@ -23,7 +23,7 @@ create table film (
 	pemeran varchar (100),
 	tahun_rilis int,
 	sinopsis varchar (100),
-	rating decimal(3,2) default 0.00,
+	rating decimal(3,1) default 0.00,
 	create_at datetime default CURRENT_TIMESTAMP(),
 	update_at datetime default CURRENT_TIMESTAMP() on update CURRENT_TIMESTAMP(),
 	foreign key (admin_id) references admin(id)
