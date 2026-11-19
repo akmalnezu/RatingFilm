@@ -1,0 +1,4 @@
+$kind: collection
+description: Koleksi endpoint REST API FastAPI untuk database MySQL ratingfilm (Stored Procedures & Views).
+variables:
+  baseUrl: http://localhost:8000

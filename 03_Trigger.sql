@@ -54,5 +54,7 @@ begin
     delete from watchlist where user_id = old.id;
 end$$
 
+create 
+
 
 DELIMITER ;

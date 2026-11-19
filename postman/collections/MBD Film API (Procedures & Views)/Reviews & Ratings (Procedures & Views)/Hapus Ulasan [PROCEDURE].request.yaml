@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/api/reviews?user_id=1&film_id=1"
+method: DELETE
+queryParams:
+  user_id: "1"
+  film_id: "1"
+order: 3000

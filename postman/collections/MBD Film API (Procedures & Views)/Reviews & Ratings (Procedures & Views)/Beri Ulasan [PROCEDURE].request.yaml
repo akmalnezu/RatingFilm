@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/reviews"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "user_id": 1,
+      "film_id": 1,
+      "nilai": 9,
+      "isi_review": "Filmnya luar biasa keren dan alur ceritanya sangat menarik!"
+    }
+order: 2000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/watchlist"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "user_id": 1,
+      "film_id": 1
+    }
+order: 2000

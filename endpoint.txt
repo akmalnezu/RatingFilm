@@ -1,0 +1,218 @@
+================================================================================
+          DAFTAR LENGKAP ENDPOINT REST API (STORED PROCEDURES & VIEWS)
+================================================================================
+Semua endpoint ini terintegrasi langsung dengan database MySQL "ratingfilm".
+Tiap endpoint diberi label jelas: [PROCEDURE] atau [VIEW].
+
+Base URL : http://localhost:8000
+Database : ratingfilm (MySQL)
+Docs UI  : http://localhost:8000/docs
+================================================================================
+
+
+--------------------------------------------------------------------------------
+1. AUTENTIKASI (/api/auth)
+--------------------------------------------------------------------------------
+
+[1.1] Registrasi User Baru
+Jenis  : [PROCEDURE] CALL RegistrasiUser(p_username, p_email, p_password)
+Method : POST
+URL    : http://localhost:8000/api/auth/register
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "AkmalNew",
+  "email": "akmalnew@example.com",
+  "password": "password123"
+}
+
+[1.2] Login User (Username atau Email)
+Jenis  : [PROCEDURE] CALL LoginUser(p_akun, p_password)
+Method : POST
+URL    : http://localhost:8000/api/auth/login
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "akun": "akmalnew@example.com",
+  "password": "password123"
+}
+
+[1.3] Login Admin
+Jenis  : [PROCEDURE] CALL LoginAdmin(p_username, p_password)
+Method : POST
+URL    : http://localhost:8000/api/auth/admin/login
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "username": "admin1",
+  "password": "admin1123"
+}
+
+
+--------------------------------------------------------------------------------
+2. FILM & GENRE (/api/films)
+--------------------------------------------------------------------------------
+
+[2.1] Mendapatkan Semua Film & Rating Rata-rata
+Jenis  : [VIEW] SELECT * FROM FilmLengkapDenganGenre
+Method : GET
+URL    : http://localhost:8000/api/films
+Body   : (None)
+
+[2.2] Filter Film Berdasarkan Genre
+Jenis  : [PROCEDURE] CALL FilterFilmByGenre(p_genre)
+Method : GET
+URL    : http://localhost:8000/api/films?genre=Action
+Body   : (None)
+
+[2.3] 10 Film Terpopuler (Rating & Jumlah Voter Tertinggi)
+Jenis  : [VIEW] SELECT * FROM ViewFilmPopuler
+Method : GET
+URL    : http://localhost:8000/api/films/popular
+Body   : (None)
+
+[2.4] Ringkasan Rating Film
+Jenis  : [VIEW] SELECT * FROM FilmWithAverageRating
+Method : GET
+URL    : http://localhost:8000/api/films/summary-ratings
+Body   : (None)
+
+[2.5] Detail Film & Seluruh Ulasan Pengguna
+Jenis  : [VIEW] FilmLengkapDenganGenre & ViewDetailReview
+Method : GET
+URL    : http://localhost:8000/api/films/1
+Body   : (None)
+
+[2.6] Tambah Film Baru (Admin)
+Jenis  : [PROCEDURE] CALL TambahFilm(p_admin_id, p_judul, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis)
+Method : POST
+URL    : http://localhost:8000/api/films
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "admin_id": 1,
+  "judul": "Inception",
+  "sutradara": "Christopher Nolan",
+  "pemeran": "Leonardo DiCaprio, Joseph Gordon-Levitt",
+  "tahun_rilis": 2010,
+  "sinopsis": "A thief who steals corporate secrets through dream-sharing technology."
+}
+
+[2.7] Ubah Data Film (Admin)
+Jenis  : [PROCEDURE] CALL UbahFilm(p_film_id, p_judul, p_sutradara, p_pemeran, p_tahun_rilis, p_sinopsis)
+Method : PUT
+URL    : http://localhost:8000/api/films/1
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "judul": "Spider-Man: No Way Home (Extended)",
+  "sutradara": "Jon Watts",
+  "pemeran": "Tom Holland, Zendaya, Benedict Cumberbatch",
+  "tahun_rilis": 2021,
+  "sinopsis": "Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange."
+}
+
+[2.8] Hapus Film (Admin)
+Jenis  : [PROCEDURE] CALL HapusFilm(p_film_id)
+Method : DELETE
+URL    : http://localhost:8000/api/films/1
+Body   : (None)
+
+[2.9] Tambah Genre ke Film
+Jenis  : [PROCEDURE] CALL TambahGenreKeFilm(p_film_id, p_nama_genre)
+Method : POST
+URL    : http://localhost:8000/api/films/1/genres
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "nama_genre": "Thriller"
+}
+
+
+--------------------------------------------------------------------------------
+3. REVIEW & RATING (/api/reviews)
+--------------------------------------------------------------------------------
+
+[3.1] Lihat Daftar Ulasan (Bisa filter by film_id atau user_id)
+Jenis  : [VIEW] SELECT * FROM ViewDetailReview
+Method : GET
+URL    : http://localhost:8000/api/reviews?film_id=1
+Body   : (None)
+
+[3.2] Beri / Update Ulasan & Rating
+Jenis  : [PROCEDURE] CALL BeriUlasan(p_user_id, p_film_id, p_nilai, p_isi_review)
+Method : POST
+URL    : http://localhost:8000/api/reviews
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "user_id": 1,
+  "film_id": 1,
+  "nilai": 9,
+  "isi_review": "Filmnya luar biasa keren dan alur ceritanya sangat menarik!"
+}
+
+[3.3] Hapus Ulasan & Rating User
+Jenis  : [PROCEDURE] CALL HapusUlasan(p_user_id, p_film_id)
+Method : DELETE
+URL    : http://localhost:8000/api/reviews?user_id=1&film_id=1
+Body   : (None)
+
+
+--------------------------------------------------------------------------------
+4. WATCHLIST (/api/watchlist)
+--------------------------------------------------------------------------------
+
+[4.1] Lihat Daftar Watchlist User Tertentu
+Jenis  : [VIEW] SELECT * FROM DaftarWatchlistUser
+Method : GET
+URL    : http://localhost:8000/api/watchlist/1
+Body   : (None)
+
+[4.2] Tambah Film ke Watchlist
+Jenis  : [PROCEDURE] CALL TambahWatchlist(p_user_id, p_film_id)
+Method : POST
+URL    : http://localhost:8000/api/watchlist
+Header : Content-Type: application/json
+Body (raw JSON):
+{
+  "user_id": 1,
+  "film_id": 1
+}
+
+[4.3] Hapus Film dari Watchlist
+Jenis  : [PROCEDURE] CALL HapusWatchlist(p_user_id, p_film_id)
+Method : DELETE
+URL    : http://localhost:8000/api/watchlist?user_id=1&film_id=1
+Body   : (None)
+
+
+--------------------------------------------------------------------------------
+5. PENGGUNA & ADMIN (/api/users)
+--------------------------------------------------------------------------------
+
+[5.1] Lihat Aktivitas Semua Pengguna
+Jenis  : [VIEW] SELECT * FROM AktivitasUser
+Method : GET
+URL    : http://localhost:8000/api/users/activity
+Body   : (None)
+
+[5.2] Lihat Aktivitas Pengguna Spesifik
+Jenis  : [VIEW] SELECT * FROM AktivitasUser WHERE user_id = 1
+Method : GET
+URL    : http://localhost:8000/api/users/1/activity
+Body   : (None)
+
+[5.3] Hapus Akun User
+Jenis  : [PROCEDURE] CALL HapusAkun(p_user_id)
+Method : DELETE
+URL    : http://localhost:8000/api/users/1
+Body   : (None)
+
+[5.4] Hapus Akun Admin
+Jenis  : [PROCEDURE] CALL HapusAKunAdmin(p_admin_id)
+Method : DELETE
+URL    : http://localhost:8000/api/users/admin/2
+Body   : (None)
+
+================================================================================

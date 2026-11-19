@@ -356,6 +356,32 @@ begin
     end if;
 end$$
 
+
+
+
+create procedure HapusAKunAdmin(
+	in p_admin_id int
+)
+begin
+	declare cek_admin int;
+	declare exit handler for sqlexception
+	begin
+		rollback;
+	end;
+
+	start transaction;
+	select count(*) into cek_admin from admin where id = p_admin_id
+	if cek_admin = 0 then
+		rollback;
+	else
+		delete from user where id = p_admin_id;
+		commit;
+	end if;	
+end$$
+
+call HapusAkunAdmin(2);
+
+
 #12: Filter Film Berdasarkan Genre
 
 drop procedure if exists FilterFilmByGenre$$
@@ -378,7 +404,7 @@ begin
     commit;
 end$$
 
-call FilterFilmByGenre('Action');
+call FilterFilmByGenre('Fiction');
 
 #13 Tambah Genre ke Film (Admin)
 
@@ -422,6 +448,6 @@ begin
     commit;
 end$$
 
-call TambahGenreKeFilm(1, 'Thriller');
+call TambahGenreKeFilm(3, 'Fiction');
 
 DELIMITER ;

@@ -112,7 +112,7 @@ insert into rating (user_id, film_id, nilai) values
 insert into review (user_id, film_id, isi_review) values 
 (1, 1, 'Seru banget, efek visualnya juara dan ceritanya mindblowing!'),
 (2, 3, 'Film Indonesia terbaik yang sangat menyentuh hati dan inspiratif.'),
-(3, 1, 'Agak pusing di awal, tapi endingnya keren.');
+(3, 1, 'Agxak pusing di awal, tapi endingnya keren.');
 
 insert into watchlist (user_id, film_id) values 
 (1, 3), 

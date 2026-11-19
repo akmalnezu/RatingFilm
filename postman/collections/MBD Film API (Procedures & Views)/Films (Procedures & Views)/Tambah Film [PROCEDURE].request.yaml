@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/films"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "admin_id": 1,
+      "judul": "Inception",
+      "sutradara": "Christopher Nolan",
+      "pemeran": "Leonardo DiCaprio, Joseph Gordon-Levitt",
+      "tahun_rilis": 2010,
+      "sinopsis": "A thief who steals corporate secrets through dream-sharing technology."
+    }
+order: 6000

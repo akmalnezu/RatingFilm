@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/api/films/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "judul": "Spider-Man: No Way Home (Extended)",
+      "sutradara": "Jon Watts",
+      "pemeran": "Tom Holland, Zendaya, Benedict Cumberbatch",
+      "tahun_rilis": 2021,
+      "sinopsis": "Identitas Spider-Man terungkap, dan dia meminta bantuan Doctor Strange."
+    }
+order: 7000

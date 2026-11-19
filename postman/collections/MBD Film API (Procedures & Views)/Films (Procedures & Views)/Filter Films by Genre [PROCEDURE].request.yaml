@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/films?genre=Action"
+method: GET
+queryParams:
+  genre: Action
+order: 2000

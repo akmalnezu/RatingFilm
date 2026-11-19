@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/films/summary-ratings"
+method: GET
+order: 4000
